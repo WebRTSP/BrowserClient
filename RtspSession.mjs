@@ -97,7 +97,7 @@ createResponse(statusCode, reasonPhrase, cseq, session)
     response.cseq = cseq;
 
     if(session)
-        response.headerFields.emplace("Session", session);
+        response.headerFields.set("Session", session);
 
     return response;
 }
