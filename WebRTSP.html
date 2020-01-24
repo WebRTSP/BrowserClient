@@ -12,7 +12,7 @@
         const videoElement =
           document.querySelector("#video");
         webrtsp = new WebRTSP.WebRTSP(videoElement);
-        webrtsp.connect("ws://localhost:8081/");
+        webrtsp.connect("wss://camproxy.online:8010/", "source1/bars");
       }
     </script>
   </head>

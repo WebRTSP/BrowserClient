@@ -6,10 +6,10 @@ import * as StatusCode from "./RtspStatusCode.mjs"
 class ClientSession extends Session
 {
 
-constructor(sendRequest, sendResponse, videoElement) {
+constructor(sendRequest, sendResponse, videoElement, uri) {
     super(sendRequest, sendResponse);
 
-    this._uri = "http://example.com/";
+    this._uri = uri;
     this._video = videoElement;
     this._session = null;
     this._peerConnection = new RTCPeerConnection();
@@ -209,14 +209,15 @@ constructor(videoElement) {
     this._video = videoElement;
 }
 
-_onSocketOpen()
+_onSocketOpen(uri)
 {
     console.log("onSocketOpen");
     this._session =
         new ClientSession(
             (request) => { this._sendRequest(request); },
             (response) => { this._sendResponse(response); },
-            this._video
+            this._video,
+            uri
         );
 
     this._session.onConnected();
@@ -284,16 +285,18 @@ _sendResponse(response)
     this._socket.send(responseMessage);
 }
 
-connect(url)
+connect(url, uri)
 {
     if(this._socket) {
         this._socket.close();
         this._socket = null;
     }
 
+    console.log(`Connecting to ${url} [${uri}]...`);
+
     this._socket = new WebSocket(url, "webrtsp");
 
-    this._socket.onopen = () => this._onSocketOpen();
+    this._socket.onopen = () => this._onSocketOpen(uri);
     this._socket.onclose = (event) => this._onSocketClose(event);
     this._socket.onerror = (error) => this._onSocketError(error);
     this._socket.onmessage = (event) => this._onSocketMessage(event);
