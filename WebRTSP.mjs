@@ -126,7 +126,7 @@ handleSetupRequest(request)
             });
     }
 
-    this.sendOkResponse(request.session);
+    this.sendOkResponse(request.cseq, request.session);
 
     return true;
 }
