@@ -2,6 +2,7 @@
 <html>
   <head>
     <title></title>
+    <link rel="stylesheet" href="css/WebRTSP.css">
     <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script>
       let webrtsp = null;
@@ -16,6 +17,8 @@
     </script>
   </head>
   <body onload="onLoad()">
-    <video id="video" widht="200" height="200" autoplay="true" muted="muted"> </video>
+    <div id="videoContainer">
+      <video id="video" autoplay="true" muted="muted"> </video>
+    </div>
   </body>
 </html>
