@@ -6,10 +6,10 @@ import * as StatusCode from "./RtspStatusCode.mjs"
 class ClientSession extends Session
 {
 
-constructor(sendRequest, sendResponse, videoElement, uri) {
+constructor(sendRequest, sendResponse, videoElement, streamerName) {
     super(sendRequest, sendResponse);
 
-    this._uri = uri;
+    this._streamerName = streamerName;
     this._video = videoElement;
     this._session = null;
 
@@ -28,7 +28,7 @@ constructor(sendRequest, sendResponse, videoElement, uri) {
 
 onConnected()
 {
-    this.requestDescribe(this._uri);
+    this.requestDescribe(this._streamerName);
 }
 
 handleMessage(message)
@@ -60,7 +60,7 @@ handleMessage(message)
 
 onDescribeResponse(request, response)
 {
-    console.log("onDescribeResponse");
+    // console.log("onDescribeResponse");
 
     if(StatusCode.OK != response.statusCode)
         return false;
@@ -76,11 +76,10 @@ onDescribeResponse(request, response)
             { type : "offer", sdp : offer });
     promise
         .then(() => {
-            console.log("setRemoteDescription complete");
             this._sendAnswer();
         }).
         catch((event) => {
-            console.log("setRemoteDescription fail", event);
+            console.error("setRemoteDescription fail", event);
         });
 
     return true;
@@ -88,7 +87,7 @@ onDescribeResponse(request, response)
 
 handleSetupRequest(request)
 {
-    console.log("handleSetupRequest");
+    // console.log("handleSetupRequest");
 
     const contentType = request.headerFields.get("content-type");
     if(!contentType || contentType != "application/x-ice-candidate")
@@ -111,23 +110,17 @@ handleSetupRequest(request)
 
     if("a=end-of-candidates" == candidate) {
         const promise =
-            this._peerConnection.addIceCandidate( { sdpMLineIndex, candidate: "" });
-        promise
-            .then(() => {
-                console.log("addIceCandidate complete");
-            }).
-            catch((event) => {
-                console.log("addIceCandidate fail", event);
+            this._peerConnection.addIceCandidate(
+                { sdpMLineIndex, candidate: "" });
+        promise.catch((event) => {
+                console.error("addIceCandidate fail", event);
             });
     } else {
         const promise =
-            this._peerConnection.addIceCandidate( { sdpMLineIndex, candidate } );
-        promise
-            .then(() => {
-                console.log("addIceCandidate complete");
-            }).
-            catch((event) => {
-                console.log("addIceCandidate fail", event);
+            this._peerConnection.addIceCandidate(
+                { sdpMLineIndex, candidate } );
+        promise.catch((event) => {
+                console.error("addIceCandidate fail", event);
             });
     }
 
@@ -138,21 +131,21 @@ handleSetupRequest(request)
 
 onSetupResponse(request, response)
 {
-    console.log("onSetupResponse");
+    // console.log("onSetupResponse");
 
     if(StatusCode.OK != response.statusCode)
         return false;
 
     const contentType = request.headerFields.get("Content-Type");
     if(contentType == "application/sdp")
-        this.requestPlay(this._uri, this._session)
+        this.requestPlay(this._streamerName, this._session)
 
     return true;
 }
 
 onPlayResponse(request, response)
 {
-    console.log("onPlayResponse");
+    // console.log("onPlayResponse");
 
     if(StatusCode.OK != response.statusCode)
         return false;
@@ -166,27 +159,27 @@ async _sendAnswer()
     const answer =
         await this._peerConnection.createAnswer()
             .catch(function (event) {
-                console.log("createAnswer fail", event);
+                console.error("createAnswer fail", event);
             });
 
     await this._peerConnection.setLocalDescription(answer)
         .catch(function (event) {
-            console.log("createAnswer fail", event);
+            console.error("setLocalDescription fail", event);
         });
 
-    await this.requestSetup(this._uri, "application/sdp", this._session, answer.sdp);
+    await this.requestSetup(this._streamerName, "application/sdp", this._session, answer.sdp);
 }
 
 _onTrack(event)
 {
-    console.log("_onTrack");
+    // console.log("_onTrack");
 
     this._video.srcObject = event.streams[0];
 }
 
 async _onIceCandidate(event)
 {
-    console.log("_onIceCandidate", event.candidate);
+    // console.log("_onIceCandidate", event.candidate);
 
     let candidate;
     if(event.candidate && event.candidate.candidate)
@@ -197,7 +190,7 @@ async _onIceCandidate(event)
             "0/a=end-of-candidates\r\n";
 
     await this.requestSetup(
-        this._uri,
+        this._streamerName,
         "application/x-ice-candidate",
         this._session,
         candidate);
@@ -208,41 +201,71 @@ async _onIceCandidate(event)
 export class WebRTSP
 {
 
-constructor(videoElement) {
+constructor(videoElement)
+{
+    this._url = null;
+    this._streamerName = null;
+
+    this._video = videoElement;
+
     this._socket = null;
     this._session = null;
-    this._video = videoElement;
+
+    this._reconnectTimeoutId = null;
 }
 
-_onSocketOpen(uri)
+_onSocketOpen()
 {
-    console.log("onSocketOpen");
+    console.info("Connected.");
+
     this._session =
         new ClientSession(
             (request) => { this._sendRequest(request); },
             (response) => { this._sendResponse(response); },
             this._video,
-            uri
+            this._streamerName,
         );
 
     this._session.onConnected();
 }
 
-_onSocketClose(event)
+_scheduleReconnect()
 {
-    console.log("_onSocketClose", event.code, event.reason);
+    if(this._reconnectTimeoutId)
+        return;
+
+    const reconnectTimout = 3;
+
+    console.info(`Scheduling reconnect in ${reconnectTimout} seconds...`);
+
+    this._reconnectTimeoutId =
+        setTimeout(
+            () => {
+                this._reconnectTimeoutId = null;
+                this.reconnect();
+            }, reconnectTimout * 1000);
+}
+
+_onSocketClose()
+{
+    console.info("Disconnected.");
+
     this._close();
+
+    this._scheduleReconnect();
 }
 
 _onSocketError(error)
 {
-    console.log("_onSocketError", error.message);
+    console.error(error.message);
+
     this._close();
 }
 
 _onSocketMessage(event)
 {
-    console.log(event.data);
+    // console.log(event.data);
+
     this._session.handleMessage(event.data);
 }
 
@@ -290,21 +313,29 @@ _sendResponse(response)
     this._socket.send(responseMessage);
 }
 
-connect(url, uri)
+connect(url, streamerName)
 {
-    if(this._socket) {
-        this._socket.close();
-        this._socket = null;
-    }
+    this._close();
 
-    console.log(`Connecting to ${url} [${uri}]...`);
+    console.info(`Connecting to ${url} [${streamerName}]...`);
+
+    this._url = url;
+    this._streamerName = streamerName;
 
     this._socket = new WebSocket(url, "webrtsp");
 
-    this._socket.onopen = () => this._onSocketOpen(uri);
+    this._socket.onopen = () => this._onSocketOpen();
     this._socket.onclose = (event) => this._onSocketClose(event);
     this._socket.onerror = (error) => this._onSocketError(error);
     this._socket.onmessage = (event) => this._onSocketMessage(event);
+}
+
+reconnect()
+{
+    if(!this._url || !this._streamerName)
+        return;
+
+    this.connect(this._url, this._streamerName);
 }
 
 }
