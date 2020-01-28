@@ -14,8 +14,8 @@ constructor(sendRequest, sendResponse, videoElement, uri) {
     this._session = null;
 
     this._peerConnection = new RTCPeerConnection({
-        'iceServers': [{
-            'url': 'stun:turn2.camproxy.ru:3478'
+        iceServers: [{
+            urls: 'stun:turn2.camproxy.ru:3478'
         }]
     });
 
