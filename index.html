@@ -5,6 +5,12 @@
     <link rel="stylesheet" href="css/WebRTSP.css">
     <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script>
+      var server = null;
+      if(window.location.protocol === 'http:')
+        server = "ws://" + window.location.hostname + ":5554/";
+      else
+        server = "wss://" + window.location.hostname + ":5555/";
+
       let webrtsp = null;
 
       async function onLoad() {
@@ -12,7 +18,7 @@
         const videoElement =
           document.querySelector("#video");
         webrtsp = new WebRTSP.WebRTSP(videoElement);
-        webrtsp.connect("wss://webrtsp.camproxy.ru:8010/", "source1/panorama");
+        webrtsp.connect(server, "*");
       }
     </script>
   </head>
