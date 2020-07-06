@@ -17,7 +17,11 @@
         let WebRTSP = await import("./WebRTSP.mjs");
         const videoElement =
           document.querySelector("#video");
-        webrtsp = new WebRTSP.WebRTSP(videoElement);
+        webrtsp = new WebRTSP.WebRTSP(
+          videoElement,
+          [{
+            urls: ["stun:stun.l.google.com:19302"]
+          }]);
         webrtsp.connect(server, "*");
       }
     </script>

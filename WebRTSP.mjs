@@ -6,18 +6,14 @@ import * as StatusCode from "./RtspStatusCode.mjs"
 class ClientSession extends Session
 {
 
-constructor(sendRequest, sendResponse, videoElement, streamerName) {
+constructor(sendRequest, sendResponse, videoElement, streamerName, iceServers) {
     super(sendRequest, sendResponse);
 
     this._streamerName = streamerName;
     this._video = videoElement;
     this._session = null;
 
-    this._peerConnection = new RTCPeerConnection({
-        iceServers: [{
-            urls: 'stun:turn.camproxy.ru:3478'
-        }]
-    });
+    this._peerConnection = new RTCPeerConnection({ iceServers });
 
     let pc = this._peerConnection;
     pc.ontrack =
@@ -201,8 +197,10 @@ async _onIceCandidate(event)
 export class WebRTSP
 {
 
-constructor(videoElement)
+constructor(videoElement, iceServers)
 {
+    this._iceServers = iceServers;
+
     this._url = null;
     this._streamerName = null;
 
@@ -224,6 +222,7 @@ _onSocketOpen()
             (response) => { this._sendResponse(response); },
             this._video,
             this._streamerName,
+            this._iceServers
         );
 
     this._session.onConnected();
