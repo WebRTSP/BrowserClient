@@ -4,6 +4,7 @@
     <title></title>
     <link rel="stylesheet" href="css/WebRTSP.css">
     <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script type="text/javascript" src="Config.js"></script>
     <script>
       var server = null;
       if(window.location.protocol === 'http:')
@@ -22,7 +23,7 @@
           [{
             urls: ["stun:stun.l.google.com:19302"]
           }]);
-        webrtsp.connect(server, "*");
+        webrtsp.connect(server, $StreamerName);
       }
     </script>
   </head>
