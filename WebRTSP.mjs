@@ -251,7 +251,8 @@ _onSocketClose()
 
     this._close();
 
-    this._scheduleReconnect();
+    if(this._url && this._streamerName)
+        this._scheduleReconnect();
 }
 
 _onSocketError(error)
@@ -273,6 +274,10 @@ _close()
     this._session = null;
 
     if(this._socket) {
+        this._socket.onopen = undefined;
+        this._socket.onclose = undefined;
+        this._socket.onerror = undefined;
+        this._socket.onmessage = undefined;
         this._socket.close();
         this._socket = null;
     }
