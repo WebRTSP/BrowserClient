@@ -6,7 +6,7 @@
     <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script type="text/javascript" src="Config.js"></script>
     <script>
-      var server = null;
+      let server = null;
       if(window.location.protocol === 'http:')
         server = "ws://" + window.location.hostname + ":5554/";
       else
