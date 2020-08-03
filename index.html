@@ -12,9 +12,30 @@
       else
         server = "wss://" + window.location.hostname + ":5555/";
 
+      function loadSources() {
+        const buttonsContainer =
+          document.querySelector("#buttonsContainer");
+        if(typeof Streamers !== "undefined" && Array.isArray(Streamers) && Streamers.length > 1) {
+          for(const streamer of Streamers) {
+            let button = document.createElement("button");
+            button.innerHTML = streamer.name;
+            button.onclick = () => { console.log(streamer.url); connect(streamer.url); }
+            buttonsContainer.appendChild(button);
+          }
+        } else {
+          buttonsContainer.hidden = true;
+        }
+      }
+
       let webrtsp = null;
 
+      function connect(url) {
+        webrtsp.connect(server, url);
+      }
+
       async function onLoad() {
+        loadSources();
+
         let WebRTSP = await import("./WebRTSP.mjs");
         const videoElement =
           document.querySelector("#video");
@@ -23,13 +44,21 @@
           [{
             urls: ["stun:stun.l.google.com:19302"]
           }]);
-        webrtsp.connect(server, $StreamerName);
+
+        if(typeof Streamers !== "undefined" && Array.isArray(Streamers) && Streamers.length > 0)
+          connect(Streamers[0].url);
+        else if(typeof $StreamerName === "string" || $StreamerName instanceof String)
+          connect($StreamerName);
       }
     </script>
   </head>
   <body onload="onLoad()">
-    <div id="videoContainer">
-      <video id="video" autoplay="true" muted="muted"> </video>
+    <div id="rootContainer">
+      <div id="buttonsContainer">
+      </div>
+      <div id="videoContainer">
+        <video id="video" autoplay="true" muted="muted"> </video>
+      </div>
     </div>
   </body>
 </html>

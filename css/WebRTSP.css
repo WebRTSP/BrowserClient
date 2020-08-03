@@ -4,15 +4,35 @@ html, body {
     padding: 0px;
 }
 
-#videoContainer {
-    position: absolute;
+#rootContainer {
+    position:absolute;
 
     top: 0px;
     bottom: 0px;
     left: 0px;
     right: 0px;
 
+    display: flex;
+    flex-direction: column;
+}
+
+#buttonsContainer {
+    flex-grow: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#buttonsContainer button {
+    margin: 2px 2px;
+}
+
+#videoContainer {
+    position:relative;
     margin: 10px;
+
+    flex-grow: 1;
 
     background-color: LightGray;
 }
