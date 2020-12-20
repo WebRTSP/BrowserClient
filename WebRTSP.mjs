@@ -6,19 +6,18 @@ import * as StatusCode from "./RtspStatusCode.mjs"
 class ClientSession extends Session
 {
 
-constructor(sendRequest, sendResponse, videoElement, streamerName, iceServers) {
+constructor(sendRequest, sendResponse, streamerName, iceServers) {
     super(sendRequest, sendResponse);
 
     this._streamerName = streamerName;
-    this._video = videoElement;
     this._session = null;
 
-    this._peerConnection = new RTCPeerConnection({ iceServers });
+    Object.defineProperty(this, "peerConnection", {
+        value: new RTCPeerConnection({ iceServers }),
+        writable: false
+    })
 
-    let pc = this._peerConnection;
-    pc.ontrack =
-        (event) => { this._onTrack(event); };
-    pc.onicecandidate =
+    this.peerConnection.onicecandidate =
         (event) => { this._onIceCandidate(event); };
 }
 
@@ -68,7 +67,7 @@ onDescribeResponse(request, response)
 
     const offer = response.body;
     const promise =
-        this._peerConnection.setRemoteDescription(
+        this.peerConnection.setRemoteDescription(
             { type : "offer", sdp : offer });
     promise
         .then(() => {
@@ -106,14 +105,14 @@ handleSetupRequest(request)
 
     if("a=end-of-candidates" == candidate) {
         const promise =
-            this._peerConnection.addIceCandidate(
+            this.peerConnection.addIceCandidate(
                 { sdpMLineIndex, candidate: "" });
         promise.catch((event) => {
                 console.error("addIceCandidate fail", event);
             });
     } else {
         const promise =
-            this._peerConnection.addIceCandidate(
+            this.peerConnection.addIceCandidate(
                 { sdpMLineIndex, candidate } );
         promise.catch((event) => {
                 console.error("addIceCandidate fail", event);
@@ -153,24 +152,17 @@ onPlayResponse(request, response)
 async _sendAnswer()
 {
     const answer =
-        await this._peerConnection.createAnswer()
+        await this.peerConnection.createAnswer()
             .catch(function (event) {
                 console.error("createAnswer fail", event);
             });
 
-    await this._peerConnection.setLocalDescription(answer)
+    await this.peerConnection.setLocalDescription(answer)
         .catch(function (event) {
             console.error("setLocalDescription fail", event);
         });
 
     await this.requestSetup(this._streamerName, "application/sdp", this._session, answer.sdp);
-}
-
-_onTrack(event)
-{
-    // console.log("_onTrack");
-
-    this._video.srcObject = event.streams[0];
 }
 
 async _onIceCandidate(event)
@@ -220,12 +212,21 @@ _onSocketOpen()
         new ClientSession(
             (request) => { this._sendRequest(request); },
             (response) => { this._sendResponse(response); },
-            this._video,
             this._streamerName,
             this._iceServers
         );
 
+    this._session.peerConnection.ontrack =
+        (event) => { this._onTrack(event); };
+
     this._session.onConnected();
+}
+
+_onTrack(event)
+{
+    // console.log("_onTrack");
+
+    this._video.srcObject = event.streams[0];
 }
 
 _scheduleReconnect()
