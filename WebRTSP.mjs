@@ -2,6 +2,7 @@ import Session from "./RtspSession.mjs"
 import * as Serialize from "./RtspSerialize.mjs"
 import * as Parse from "./RtspParse.mjs"
 import * as StatusCode from "./RtspStatusCode.mjs"
+import { ParseOptions } from "./RtspParse.mjs";
 
 class ClientSession extends Session
 {
@@ -25,7 +26,7 @@ constructor(sendRequest, sendResponse, events, streamerName, iceServers) {
 
 onConnected()
 {
-    this.requestDescribe(this._streamerName);
+    this.requestOptions(this._streamerName)
 }
 
 handleMessage(message)
@@ -53,6 +54,19 @@ handleMessage(message)
             return;
         }
     }
+}
+
+onOptionsResponse(request, response)
+{
+    const options = ParseOptions(response)
+    if(!options)
+        return false;
+
+    this.options = options;
+
+    this.requestDescribe(this._streamerName);
+
+    return true;
 }
 
 onDescribeResponse(request, response)
