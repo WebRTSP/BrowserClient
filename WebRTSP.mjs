@@ -6,8 +6,10 @@ import * as StatusCode from "./RtspStatusCode.mjs"
 class ClientSession extends Session
 {
 
-constructor(sendRequest, sendResponse, streamerName, iceServers) {
+constructor(sendRequest, sendResponse, events, streamerName, iceServers) {
     super(sendRequest, sendResponse);
+
+    this._events = events;
 
     this._streamerName = streamerName;
     this._session = null;
@@ -191,6 +193,11 @@ export class WebRTSP
 
 constructor(videoElement, iceServers)
 {
+    Object.defineProperty(this, "events", {
+        value: new EventTarget(),
+        writable: false
+    })
+
     this._iceServers = iceServers;
 
     this._url = null;
@@ -212,6 +219,7 @@ _onSocketOpen()
         new ClientSession(
             (request) => { this._sendRequest(request); },
             (response) => { this._sendResponse(response); },
+            this.events,
             this._streamerName,
             this._iceServers
         );
