@@ -17,6 +17,7 @@ html, body {
 }
 
 #buttonsContainer {
+    margin-top: 5px;
     flex-grow: 0;
 
     display: flex;
@@ -30,7 +31,7 @@ html, body {
 
 #videoContainer {
     position:relative;
-    margin: 10px;
+    margin: 5px 10px 10px 10px;
 
     flex-grow: 1;
 
