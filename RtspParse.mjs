@@ -472,6 +472,37 @@ export function ParseResponse(buffer)
     return response;
 }
 
+export function ParseOptions(response)
+{
+    const options = response.headerFields.get("public");
+    if(!options)
+        return undefined;
+
+    let parsedOptions = new Set();
+
+    let parseBuffer = new ParseBuffer(options);
+    while(!parseBuffer.eos) {
+        SkipWSP(parseBuffer);
+
+        const methodToken = GetToken(parseBuffer);
+        if(!methodToken)
+            return undefined;
+
+        const method = Method.Parse(methodToken);
+        if(!method)
+            return undefined;
+
+        SkipWSP(parseBuffer);
+
+        if(!parseBuffer.eos && !Skip(parseBuffer, ','))
+            return returnOptions;
+
+        parsedOptions.add(method);
+    }
+
+    return parsedOptions;
+}
+
 export function IsRequest(buffer)
 {
     let parseBuffer = new ParseBuffer(buffer);
