@@ -53,4 +53,10 @@ export default class ParseBuffer
     startsWith(searchString) {
         return this.buffer.startsWith(searchString, this.pos);
     }
+    substringFrom(beginPos) {
+        return this.buffer.substring(beginPos, this.pos);
+    }
+    substring(beginPos, endPos) {
+        return this.buffer.substring(beginPos, endPos);
+    }
 }
