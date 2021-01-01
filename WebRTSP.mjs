@@ -13,6 +13,7 @@ constructor(sendRequest, sendResponse, events, iceServers) {
     this._events = events;
 
     this._streamerName = null;
+    this._encodedStreamerName = null;
     this._session = null;
 
     Object.defineProperty(this, "peerConnection", {
@@ -30,11 +31,12 @@ get streamerName() {
 
 set streamerName(name) {
     this._streamerName = name;
+    this._encodedStreamerName = name ? encodeURI(name) : null;
 }
 
 onConnected()
 {
-    this.requestOptions(this._streamerName)
+    this.requestOptions(this._encodedStreamerName);
 }
 
 handleMessage(message)
@@ -72,7 +74,7 @@ onOptionsResponse(request, response)
 
     this.options = options;
 
-    this.requestDescribe(this._streamerName);
+    this.requestDescribe(this._encodedStreamerName);
 
     return true;
 }
@@ -157,7 +159,7 @@ onSetupResponse(request, response)
 
     const contentType = request.headerFields.get("Content-Type");
     if(contentType == "application/sdp")
-        this.requestPlay(this._streamerName, this._session)
+        this.requestPlay(this._encodedStreamerName, this._session)
 
     return true;
 }
@@ -186,7 +188,7 @@ async _sendAnswer()
             console.error("setLocalDescription fail", event);
         });
 
-    await this.requestSetup(this._streamerName, "application/sdp", this._session, answer.sdp);
+    await this.requestSetup(this._encodedStreamerName, "application/sdp", this._session, answer.sdp);
 }
 
 async _onIceCandidate(event)
@@ -202,7 +204,7 @@ async _onIceCandidate(event)
             "0/a=end-of-candidates\r\n";
 
     await this.requestSetup(
-        this._streamerName,
+        this._encodedStreamerName,
         "application/x-ice-candidate",
         this._session,
         candidate);
