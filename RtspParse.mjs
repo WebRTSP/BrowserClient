@@ -518,3 +518,8 @@ export function IsRequest(buffer)
 
     return true;
 }
+
+export function ContentType(message)
+{
+    return message.headerFields.get("content-type");
+}
