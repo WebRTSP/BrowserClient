@@ -351,6 +351,10 @@ _sendResponse(response)
     this._socket.send(responseMessage);
 }
 
+get session() {
+    return this._session;
+}
+
 connect(url, streamerName)
 {
     this._close();
