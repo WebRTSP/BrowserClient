@@ -4,7 +4,6 @@
     <title></title>
     <link rel="stylesheet" href="css/WebRTSP.css">
     <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <script type="text/javascript" src="Config.js"></script>
     <script>
       let server = null;
       if(window.location.protocol === 'http:')
@@ -12,16 +11,22 @@
       else
         server = "wss://" + window.location.hostname + ":5555/";
 
-      function loadSources() {
+      let streamersList = undefined;
+
+      function updateSources(list) {
         const buttonsContainer =
           document.querySelector("#buttonsContainer");
-        if(typeof Streamers !== "undefined" && Array.isArray(Streamers) && Streamers.length > 1) {
-          for(const streamer of Streamers) {
+        buttonsContainer.innerHTML = "";
+        if(list && list.size > 0) {
+          list.forEach((description, streamerName) => {
             let button = document.createElement("button");
-            button.innerHTML = streamer.name;
-            button.onclick = () => { console.log(streamer.url); connect(streamer.url); }
+            button.innerHTML = streamerName;
+            button.title = description;
+            button.dataset.streamerName = streamerName;
+            button.dataset.streamerDescription = description;
+            button.onclick = function() { connect(this.dataset.streamerName); }
             buttonsContainer.appendChild(button);
-          }
+          });
         } else {
           buttonsContainer.hidden = true;
         }
@@ -29,13 +34,11 @@
 
       let webrtsp = null;
 
-      function connect(url) {
-        webrtsp.connect(server, url);
+      function connect(streamerName) {
+        webrtsp.connect(server, streamerName);
       }
 
       async function onLoad() {
-        loadSources();
-
         let WebRTSP = await import("./WebRTSP.mjs");
         const videoElement =
           document.querySelector("#video");
@@ -45,10 +48,21 @@
             urls: ["stun:stun.l.google.com:19302"]
           }]);
 
-        if(typeof Streamers !== "undefined" && Array.isArray(Streamers) && Streamers.length > 0)
-          connect(Streamers[0].url);
-        else if(typeof $StreamerName === "string" || $StreamerName instanceof String)
-          connect($StreamerName);
+          webrtsp.events.addEventListener("list", (event) => {
+
+            updateSources(event.detail.list);
+
+            if(event.detail.list.size > 0) {
+              const requiredItem = Math.floor(Math.random() * event.detail.list.size);
+              let it = event.detail.list.keys();
+              for(let i = 0; i < requiredItem; ++i)
+                it.next();
+              webrtsp.streamerName = it.next().value;
+            } else
+              webrtsp.streamerName = "*";
+          })
+
+          connect();
       }
     </script>
   </head>

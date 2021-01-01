@@ -1,8 +1,9 @@
+import * as Method from "./RtspMethod.mjs"
 import Session from "./RtspSession.mjs"
 import * as Serialize from "./RtspSerialize.mjs"
 import * as Parse from "./RtspParse.mjs"
 import * as StatusCode from "./RtspStatusCode.mjs"
-import { ParseOptions } from "./RtspParse.mjs";
+import { ParseOptions, ParseParameters, ContentType } from "./RtspParse.mjs";
 
 class ClientSession extends Session
 {
@@ -36,7 +37,7 @@ set streamerName(name) {
 
 onConnected()
 {
-    this.requestOptions(this._encodedStreamerName);
+    this.requestOptions(this._encodedStreamerName || "*");
 }
 
 handleMessage(message)
@@ -73,6 +74,40 @@ onOptionsResponse(request, response)
         return false;
 
     this.options = options;
+
+    if(this.options.has(Method.LIST) && !this._encodedStreamerName)
+        this.requestList("*");
+    else
+        this.requestDescribe(this._encodedStreamerName || "*");
+
+    return true;
+}
+
+onListResponse(request, response)
+{
+    if(ContentType(response) != "text/parameters")
+        return false;
+
+    const list = ParseParameters(response.body);
+    if(!list)
+        return false;
+
+    this.list = new Map;
+    list.forEach((value, key) => {
+        this.list.set(decodeURI(key), value);
+    })
+
+    if(!this._events.dispatchEvent(new CustomEvent("list", { detail: { list: this.list } })))
+        return false;
+
+    if(!this._encodedStreamerName) {
+        if(list.size > 0)
+            this.streamerName = list.keys().next().value;
+        else
+            this.streamerName = "*";
+    }
+
+    console.info(`Requesting "${this._streamerName}" streamer...`);
 
     this.requestDescribe(this._encodedStreamerName);
 
@@ -359,7 +394,10 @@ connect(url, streamerName)
 {
     this._close();
 
-    console.info(`Connecting to ${url} [${streamerName}]...`);
+    if(streamerName)
+        console.info(`Connecting to ${url} [${streamerName}]...`);
+    else
+        console.info(`Connecting to ${url}...`);
 
     this._url = url;
     this._streamerName = streamerName;

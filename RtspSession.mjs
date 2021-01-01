@@ -50,6 +50,14 @@ requestOptions(uri)
     return request.cseq;
 }
 
+requestList(uri)
+{
+    let request = this.createRequest(Method.LIST, uri);
+    this._sendRequest(request);
+
+    return request.cseq;
+}
+
 requestSetup(uri, contentType, session, body)
 {
     let request = this.createRequest(Method.SETUP, uri);
@@ -136,6 +144,11 @@ handleResponse(response)
         case Method.OPTIONS:
             if(this.onOptionsResponse)
                 return this.onOptionsResponse(request, response);
+            else
+                return false;
+        case Method.LIST:
+            if(this.onListResponse)
+                return this.onListResponse(request, response);
             else
                 return false;
         case Method.DESCRIBE:

@@ -161,6 +161,18 @@ function Skip(parseBuffer, c)
     return false;
 }
 
+function SkipNot(parseBuffer, c)
+{
+    while(!parseBuffer.eos) {
+        if(parseBuffer.currentChar == c)
+            return true;
+
+        parseBuffer.advance();
+    }
+
+    return false;
+}
+
 function GetToken(parseBuffer)
 {
     let token = new Token(parseBuffer);
@@ -501,6 +513,55 @@ export function ParseOptions(response)
     }
 
     return parsedOptions;
+}
+
+function ParseParameter(parseBuffer)
+{
+    const namePos = parseBuffer.pos;
+
+    if(!SkipNot(parseBuffer, ':'))
+        return undefined;
+
+    const name = parseBuffer.substringFrom(namePos);
+    if(!name)
+        return undefined;
+
+    if(!Skip(parseBuffer, ':'))
+        return undefined;
+
+    SkipWSP(parseBuffer);
+
+    const valuePos = parseBuffer.pos;
+
+    while(!parseBuffer.eos) {
+        const tmpPos = parseBuffer.pos;
+        if(SkipEOL(parseBuffer)) {
+            const value = parseBuffer.substring(valuePos, tmpPos);
+            return { name, value }
+        } else if(!IsCtl(parseBuffer.currentChar))
+            parseBuffer.advance()
+        else
+            return undefined;
+    }
+
+    return undefined;
+}
+
+export function ParseParameters(body)
+{
+    let parameters = new Map;
+
+    let parseBuffer = new ParseBuffer(body);
+    while(!parseBuffer.eos) {
+        const { name, value } = ParseParameter(parseBuffer, parameters);
+
+        if(!name)
+            return undefined;
+
+        parameters.set(name, value);
+    }
+
+    return parameters;
 }
 
 export function IsRequest(buffer)
