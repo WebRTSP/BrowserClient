@@ -7,12 +7,12 @@ import { ParseOptions } from "./RtspParse.mjs";
 class ClientSession extends Session
 {
 
-constructor(sendRequest, sendResponse, events, streamerName, iceServers) {
+constructor(sendRequest, sendResponse, events, iceServers) {
     super(sendRequest, sendResponse);
 
     this._events = events;
 
-    this._streamerName = streamerName;
+    this._streamerName = null;
     this._session = null;
 
     Object.defineProperty(this, "peerConnection", {
@@ -22,6 +22,14 @@ constructor(sendRequest, sendResponse, events, streamerName, iceServers) {
 
     this.peerConnection.onicecandidate =
         (event) => { this._onIceCandidate(event); };
+}
+
+get streamerName() {
+    return this._streamerName;
+}
+
+set streamerName(name) {
+    this._streamerName = name;
 }
 
 onConnected()
@@ -234,9 +242,10 @@ _onSocketOpen()
             (request) => { this._sendRequest(request); },
             (response) => { this._sendResponse(response); },
             this.events,
-            this._streamerName,
             this._iceServers
         );
+
+    this._session.streamerName = this._streamerName;
 
     this._session.peerConnection.ontrack =
         (event) => { this._onTrack(event); };
@@ -355,6 +364,19 @@ connect(url, streamerName)
     this._socket.onclose = (event) => this._onSocketClose(event);
     this._socket.onerror = (error) => this._onSocketError(error);
     this._socket.onmessage = (event) => this._onSocketMessage(event);
+}
+
+get streamerName() {
+    if(this._session)
+        return this._session.streamerName;
+    else
+        return this._streamerName;
+}
+
+set streamerName(name) {
+    this._streamerName = name;
+    if(this._session)
+        this._session.streamerName = name;
 }
 
 reconnect()
