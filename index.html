@@ -36,6 +36,9 @@
       let webrtsp = null;
 
       function connect(streamerName) {
+        if(streamerName)
+          document.title = streamerName;
+
         webrtsp.connect(server, streamerName);
       }
 
@@ -61,6 +64,8 @@
               webrtsp.streamerName = it.next().value;
             } else
               webrtsp.streamerName = "*";
+
+            document.title = webrtsp.streamerName;
           })
 
           connect();
