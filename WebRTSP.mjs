@@ -116,8 +116,6 @@ onListResponse(request, response)
 
 onDescribeResponse(request, response)
 {
-    // console.log("onDescribeResponse");
-
     if(StatusCode.OK != response.statusCode)
         return false;
 
@@ -143,8 +141,6 @@ onDescribeResponse(request, response)
 
 handleSetupRequest(request)
 {
-    // console.log("handleSetupRequest");
-
     const contentType = request.headerFields.get("content-type");
     if(!contentType || contentType != "application/x-ice-candidate")
         return false;
@@ -187,8 +183,6 @@ handleSetupRequest(request)
 
 onSetupResponse(request, response)
 {
-    // console.log("onSetupResponse");
-
     if(StatusCode.OK != response.statusCode)
         return false;
 
@@ -201,8 +195,6 @@ onSetupResponse(request, response)
 
 onPlayResponse(request, response)
 {
-    // console.log("onPlayResponse");
-
     if(StatusCode.OK != response.statusCode)
         return false;
 
@@ -228,8 +220,6 @@ async _sendAnswer()
 
 async _onIceCandidate(event)
 {
-    // console.log("_onIceCandidate", event.candidate);
-
     let candidate;
     if(event.candidate && event.candidate.candidate)
         candidate =
@@ -292,8 +282,6 @@ _onSocketOpen()
 
 _onTrack(event)
 {
-    // console.log("_onTrack");
-
     this._video.srcObject = event.streams[0];
 }
 
