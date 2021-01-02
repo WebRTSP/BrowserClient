@@ -5,6 +5,8 @@ import * as Parse from "./RtspParse.mjs"
 import * as StatusCode from "./RtspStatusCode.mjs"
 import { ParseOptions, ParseParameters, ContentType } from "./RtspParse.mjs";
 
+const debug = false
+
 class ClientSession extends Session
 {
 
@@ -331,7 +333,8 @@ _onSocketError(socket, error)
 
 _onSocketMessage(event)
 {
-    // console.log(event.data);
+    if(debug)
+        console.debug(event.data);
 
     this._session.handleMessage(event.data);
 }
@@ -360,6 +363,9 @@ _sendRequest(request)
         return;
     }
 
+    if(debug)
+        console.debug(requestMessage);
+
     this._socket.send(requestMessage);
 }
 
@@ -376,6 +382,9 @@ _sendResponse(response)
         this._close();
         return;
     }
+
+    if(debug)
+        console.debug(responseMessage);
 
     this._socket.send(responseMessage);
 }
