@@ -9,8 +9,12 @@ export default class Session
 
 constructor(sendRequest, sendResponse) {
     this._sendRequest = (request) => {
-        console.assert(request.uri, "Missing uri in webrtsp request");
-        sendRequest(request);
+        if(request && !request.uri) {
+            console.error("Missing uri in webrtsp request");
+            sendRequest(null);
+        } else {
+            sendRequest(request);
+        }
     }
     this._sendResponse = sendResponse;
 
