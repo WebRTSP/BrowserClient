@@ -205,6 +205,10 @@ onPlayResponse(request, response)
     return true;
 }
 
+close() {
+    this.peerConnection.close();
+}
+
 
 async _sendAnswer()
 {
@@ -341,7 +345,11 @@ _onSocketMessage(event)
 
 _close()
 {
-    this._session = null;
+    if(this._session) {
+        this._session.peerConnection.ontrack = undefined;
+        this._session.close();
+        this._session = null;
+    }
 
     if(this._socket) {
         this._socket.close();
