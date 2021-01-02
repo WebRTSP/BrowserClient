@@ -553,7 +553,7 @@ export function ParseParameters(body)
 
     let parseBuffer = new ParseBuffer(body);
     while(!parseBuffer.eos) {
-        const { name, value } = ParseParameter(parseBuffer, parameters);
+        const { name, value } = ParseParameter(parseBuffer, parameters) || {};
 
         if(!name)
             return undefined;
