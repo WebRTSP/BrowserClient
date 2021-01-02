@@ -89,8 +89,10 @@ onListResponse(request, response)
         return false;
 
     const list = ParseParameters(response.body);
-    if(!list)
+    if(!list) {
+        console.error("LIST response parsing failed")
         return false;
+    }
 
     this.list = new Map;
     list.forEach((value, key) => {
