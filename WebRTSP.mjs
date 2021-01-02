@@ -302,21 +302,29 @@ _scheduleReconnect()
             }, reconnectTimout * 1000);
 }
 
-_onSocketClose()
+_onSocketClose(socket)
 {
     console.info("Disconnected.");
 
-    this._close();
+    if(socket == this._socket) {
+        this._close();
 
-    if(this._url && this._streamerName)
-        this._scheduleReconnect();
+        if(this._url && this._streamerName)
+            this._scheduleReconnect();
+    }
+
+    socket.onopen = undefined;
+    socket.onclose = undefined;
+    socket.onerror = undefined;
+    socket.onmessage = undefined;
 }
 
-_onSocketError(error)
+_onSocketError(socket, error)
 {
     console.error(error.message);
 
-    this._close();
+    if(socket == this._socket)
+        this._close();
 }
 
 _onSocketMessage(event)
@@ -331,10 +339,6 @@ _close()
     this._session = null;
 
     if(this._socket) {
-        this._socket.onopen = undefined;
-        this._socket.onclose = undefined;
-        this._socket.onerror = undefined;
-        this._socket.onmessage = undefined;
         this._socket.close();
         this._socket = null;
     }
@@ -390,12 +394,14 @@ connect(url, streamerName)
     this._url = url;
     this._streamerName = streamerName;
 
-    this._socket = new WebSocket(url, "webrtsp");
+    const socket = new WebSocket(url, "webrtsp");
 
-    this._socket.onopen = () => this._onSocketOpen();
-    this._socket.onclose = (event) => this._onSocketClose(event);
-    this._socket.onerror = (error) => this._onSocketError(error);
-    this._socket.onmessage = (event) => this._onSocketMessage(event);
+    socket.onopen = () => this._onSocketOpen();
+    socket.onclose = (event) => this._onSocketClose(socket, event);
+    socket.onerror = (error) => this._onSocketError(socket, error);
+    socket.onmessage = (event) => this._onSocketMessage(event);
+
+    this._socket = socket
 }
 
 get streamerName() {
