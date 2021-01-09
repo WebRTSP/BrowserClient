@@ -5,12 +5,13 @@
     <title>WebRTSP</title>
     <link rel="stylesheet" href="css/WebRTSP.css">
     <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script type="text/javascript" src="Config.js"></script>
     <script>
       let server = null;
       if(window.location.protocol === 'http:')
-        server = "ws://" + window.location.hostname + ":5554/";
+        server = `ws://${window.location.hostname}:${WebRTSPPort}/`;
       else
-        server = "wss://" + window.location.hostname + ":5555/";
+        server = `wss://${window.location.hostname}:${WebRTSPPort}/`;
 
       let streamersList = undefined;
 
