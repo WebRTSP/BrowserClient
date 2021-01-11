@@ -71,6 +71,88 @@
 
           connect();
       }
+
+      function logStats() {
+        webrtsp.session.peerConnection.getStats()
+          .then((report) => {
+            report.forEach(entry => {
+              if(entry.type == "candidate-pair" ) {
+                if(entry.nominated && entry.totalRoundTripTime) {
+                  console.log(
+                    `Candidate pair "${entry.id}":`,
+                    JSON.stringify(
+                      entry,
+                      [
+                        // "bytesReceived",
+                        // "bytesSent",
+                        // "timestamp",
+                        "totalRoundTripTime"
+                      ], 4));
+                }
+              } else if(entry.type == "remote-candidate" || entry.type == "local-candidate") {
+              } else if(entry.type == "certificate") {
+              } else if(entry.type == "codec") {
+              } else if(entry.type == "inbound-rtp") {
+                  if(entry.packetsReceived) {
+                    entry.packetsLostPct = entry.packetsLost/entry.packetsReceived;
+                  }
+                  console.log(
+                    `Inbound RTP stream "${entry.id}":`,
+                    JSON.stringify(entry,
+                      [
+                        "kind",
+                        //"lastPacketReceivedTimestamp",
+                        //"framesDecoded",
+                        //"framesDropped",
+                        "firCount", // Full Intra Request
+                        "pliCount", // Picture Loss Indication
+                        "nackCount",
+                        //"bytesReceived",
+                        "packetsReceived",
+                        "packetsLost",
+                        "packetsLostPct"
+                      ], 4));
+              } else if(entry.type == "transport") {
+                  /*
+                  console.log(
+                    `Transport "${entry.id}":`,
+                    JSON.stringify(
+                      entry,
+                      [
+                        "dtlsState",
+                        "bytesReceived",
+                        "bytesSent",
+                        "timestamp"
+                      ], 4));
+                  */
+              } else if(entry.type == "peer-connection") {
+              } else if(entry.type == "stream") {
+              } else if(entry.type == "track") {
+                if(entry.remoteSource) {
+                  if(entry.jitterBufferEmittedCount) {
+                    entry.jitterBufferAvgDelay = entry.jitterBufferDelay/entry.jitterBufferEmittedCount;
+                  }
+                  console.log(
+                    `Track "${entry.id}":`,
+                    JSON.stringify(
+                      entry,
+                      [
+                        "kind",
+                        //"framesDecoded",
+                        //"framesDropped",
+                        "jitterBufferDelay",
+                        "jitterBufferEmittedCount",
+                        "jitterBufferAvgDelay"
+                      ], 4));
+                }
+              } else if(entry.type == "remote-outbound-rtp") {
+              } else {
+                console.log(`type: ${entry.type}, id: ${entry.id}`, entry);
+              }
+            });
+          }
+        )
+      }
     </script>
   </head>
   <body onload="onLoad()">
@@ -80,6 +162,7 @@
       <div id="videoContainer">
         <video id="video" autoplay="true" muted="muted"> </video>
       </div>
+      <button id="statsButton" onclick="logStats()">Stats</button>
     </div>
   </body>
 </html>
