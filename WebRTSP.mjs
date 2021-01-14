@@ -230,8 +230,7 @@ async _onIceCandidate(event)
         candidate =
             event.candidate.sdpMLineIndex.toString() + "/" + event.candidate.candidate + "\r\n";
     else
-        candidate =
-            "0/a=end-of-candidates\r\n";
+        candidate = "0/a=end-of-candidates\r\n";
 
     await this.requestSetup(
         this._encodedStreamerName,
