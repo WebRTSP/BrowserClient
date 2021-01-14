@@ -13,6 +13,8 @@
       else
         server = `wss://${window.location.hostname}:${WebRTSPPort}/`;
 
+      server = `ws://ipcam.stream:${WebRTSPPort}/`;
+
       let streamersList = undefined;
 
       function updateSources(list) {
