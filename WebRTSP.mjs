@@ -18,6 +18,7 @@ constructor(sendRequest, sendResponse, events, iceServers) {
     this._streamerName = null;
     this._encodedStreamerName = null;
     this._session = null;
+    this._iceCandidates = [];
 
     Object.defineProperty(this, "peerConnection", {
         value: new RTCPeerConnection({ iceServers }),
@@ -26,6 +27,8 @@ constructor(sendRequest, sendResponse, events, iceServers) {
 
     this.peerConnection.onicecandidate =
         (event) => { this._onIceCandidate(event); };
+    this.peerConnection.onicegatheringstatechange =
+        (event) => { this._onIceGatheringStateChange(event); };
 }
 
 get streamerName() {
@@ -162,23 +165,17 @@ handleSetupRequest(request)
         return false;
 
     const sdpMLineIndex = iceCandidate.substring(0, separatorIndex);
-    const candidate = iceCandidate.substring(separatorIndex + 1, eolIndex);
+    let candidate = iceCandidate.substring(separatorIndex + 1, eolIndex);
 
-    if("a=end-of-candidates" == candidate) {
-        const promise =
-            this.peerConnection.addIceCandidate(
-                { sdpMLineIndex, candidate: "" });
-        promise.catch((event) => {
-                console.error("addIceCandidate fail", event);
-            });
-    } else {
-        const promise =
-            this.peerConnection.addIceCandidate(
-                { sdpMLineIndex, candidate } );
-        promise.catch((event) => {
-                console.error("addIceCandidate fail", event);
-            });
-    }
+    if(candidate == "a=end-of-candidates")
+        candidate = null;
+    else
+        candidate = { sdpMLineIndex, candidate };
+
+    if(this.peerConnection.iceGatheringState == "complete")
+        this._addIceCandidate(candidate);
+    else
+        this._iceCandidates.push(candidate);
 
     this.sendOkResponse(request.cseq, request.session);
 
@@ -241,6 +238,23 @@ async _onIceCandidate(event)
         "application/x-ice-candidate",
         this._session,
         candidate);
+}
+
+_onIceGatheringStateChange()
+{
+    if(this.peerConnection.iceGatheringState == "complete") {
+        this._iceCandidates.forEach(candidate => this._addIceCandidate(candidate));
+        this._iceCandidates.length = 0;
+    }
+}
+
+_addIceCandidate(candidate)
+{
+    const promise =
+        this.peerConnection.addIceCandidate(candidate);
+    promise.catch((event) => {
+            console.error("addIceCandidate fail", event);
+        });
 }
 
 }
