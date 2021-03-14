@@ -53,23 +53,23 @@
             urls: ["stun:stun.l.google.com:19302"]
           }]);
 
-          webrtsp.events.addEventListener("list", (event) => {
+        webrtsp.events.addEventListener("list", (event) => {
 
-            updateSources(event.detail.list);
+          updateSources(event.detail.list);
 
-            if(event.detail.list.size > 0) {
-              const requiredItem = Math.floor(Math.random() * event.detail.list.size);
-              let it = event.detail.list.keys();
-              for(let i = 0; i < requiredItem; ++i)
-                it.next();
-              webrtsp.streamerName = it.next().value;
-            } else
-              webrtsp.streamerName = "*";
+          if(event.detail.list.size > 0) {
+            const requiredItem = Math.floor(Math.random() * event.detail.list.size);
+            let it = event.detail.list.keys();
+            for(let i = 0; i < requiredItem; ++i)
+              it.next();
+            webrtsp.streamerName = it.next().value;
+          } else
+            webrtsp.streamerName = "*";
 
-            document.title = webrtsp.streamerName;
-          })
+          document.title = webrtsp.streamerName;
+        })
 
-          connect();
+        connect();
       }
     </script>
   </head>
