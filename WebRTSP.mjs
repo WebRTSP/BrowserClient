@@ -338,6 +338,8 @@ _onSocketClose(socket)
     socket.onclose = undefined;
     socket.onerror = undefined;
     socket.onmessage = undefined;
+
+    this.events.dispatchEvent(new Event("disconnected"));
 }
 
 _onSocketError(socket, error)
