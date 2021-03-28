@@ -54,7 +54,6 @@
           }]);
 
         webrtsp.events.addEventListener("list", (event) => {
-
           updateSources(event.detail.list);
 
           if(event.detail.list.size > 0) {
@@ -67,7 +66,7 @@
             webrtsp.streamerName = "*";
 
           document.title = webrtsp.streamerName;
-        })
+        });
 
         connect();
       }
