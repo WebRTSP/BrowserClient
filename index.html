@@ -55,10 +55,13 @@
         const spinner =
           new Spin.Spinner({color:'#ffffff'});
 
+        const stunServer =
+            (typeof STUNServer === "string") ? STUNServer : "stun:stun.l.google.com:19302"
+
         webrtsp = new WebRTSP.WebRTSP(
           videoElement,
           [{
-            urls: [STUNServer || "stun:stun.l.google.com:19302"]
+            urls: [stunServer]
           }]);
 
         webrtsp.events.addEventListener("list", (event) => {
