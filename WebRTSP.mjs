@@ -80,10 +80,16 @@ onOptionsResponse(request, response)
 
     this.options = options;
 
-    if(this.options.has(Method.LIST) && !this._encodedStreamerName)
+    if(!this._encodedStreamerName && this.options.has(Method.LIST)) {
         this.requestList("*");
-    else
-        this.requestDescribe(this._encodedStreamerName || "*");
+
+        return true;
+    }
+
+    if(!this._encodedStreamerName)
+        this.streamerName = "*";
+
+    this.requestDescribe(this._encodedStreamerName);
 
     return true;
 }
