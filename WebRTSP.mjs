@@ -5,7 +5,6 @@ import * as Parse from "./RtspParse.mjs"
 import * as StatusCode from "./RtspStatusCode.mjs"
 import { ParseOptions, ParseParameters, ContentType } from "./RtspParse.mjs";
 
-const debug = false
 
 class ClientSession extends Session
 {
@@ -267,12 +266,14 @@ _addIceCandidate(candidate)
 export class WebRTSP
 {
 
-constructor(videoElement, iceServers)
+constructor(videoElement, iceServers, { debug })
 {
     Object.defineProperty(this, "events", {
         value: new EventTarget(),
         writable: false
     })
+
+    this._debug = debug;
 
     this._iceServers = iceServers;
 
@@ -358,7 +359,7 @@ _onSocketError(socket, error)
 
 _onSocketMessage(event)
 {
-    if(debug)
+    if(this._debug)
         console.debug(event.data);
 
     this._session.handleMessage(event.data);
@@ -392,7 +393,7 @@ _sendRequest(request)
         return;
     }
 
-    if(debug)
+    if(this._debug)
         console.debug(requestMessage);
 
     this._socket.send(requestMessage);
@@ -412,7 +413,7 @@ _sendResponse(response)
         return;
     }
 
-    if(debug)
+    if(this._debug)
         console.debug(responseMessage);
 
     this._socket.send(responseMessage);
