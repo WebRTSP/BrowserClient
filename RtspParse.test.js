@@ -15,21 +15,21 @@ suite("RTSP Response parse", () => {
 
     test("OPTIONS request", () => {
         let buffer =
-            "OPTIONS * WEBRTSP/0.1\r\n" +
+            "OPTIONS * WEBRTSP/0.2\r\n" +
             "CSeq: 1\r\n";
         let request = Parse.ParseRequest(buffer);
         assert.ok(request);
         assert.ok(request.method === Method.OPTIONS);
         assert.ok(request.uri == "*");
-        assert.ok(request.protocol === Protocol.WEBRTSP_0_1);
+        assert.ok(request.protocol === Protocol.WEBRTSP_0_2);
         assert.ok(request.cseq === 1);
         assert.ok(request.headerFields.size == 0);
         assert.ok(!request.body);
     });
 
-    test("SETUP request", () => {
+    test("PLAY request", () => {
         let buffer =
-            "SETUP rtsp://example.com/meida.ogg WEBRTSP/0.1\r\n" +
+            "PLAY rtsp://example.com/meida.ogg WEBRTSP/0.2\r\n" +
             "CSeq: 3\r\n" +
             "Content-Type: application/sdp\r\n" +
             "\r\n" +
@@ -38,7 +38,7 @@ suite("RTSP Response parse", () => {
         assert.ok(request);
         assert.ok(request.method === Method.SETUP);
         assert.ok(request.uri == "rtsp://example.com/meida.ogg");
-        assert.ok(request.protocol === Protocol.WEBRTSP_0_1);
+        assert.ok(request.protocol === Protocol.WEBRTSP_0_2);
         assert.ok(request.cseq === 3);
         assert.ok(request.headerFields.size == 1);
         assert.ok(request.headerFields.has("content-type"));
@@ -60,11 +60,11 @@ suite("RTSP Response parse", () => {
 
     test("Minimal response", () => {
         let buffer =
-            "WEBRTSP/0.1 200 OK\r\n" +
+            "WEBRTSP/0.2 200 OK\r\n" +
             "CSeq: 9\r\n"
         let response = Parse.ParseResponse(buffer);
         assert.ok(response);
-        assert.ok(response.protocol === Protocol.WEBRTSP_0_1);
+        assert.ok(response.protocol === Protocol.WEBRTSP_0_2);
         assert.ok(response.statusCode === 200);
         assert.ok(response.reasonPhrase === "OK");
         assert.ok(response.cseq === 9);
@@ -74,12 +74,12 @@ suite("RTSP Response parse", () => {
 
     test("Response with header field", () => {
         let buffer =
-            "WEBRTSP/0.1 200 OK\r\n" +
+            "WEBRTSP/0.2 200 OK\r\n" +
             "CSeq: 9\r\n" +
             "Content-Type: text/parameters\r\n"
         let response = Parse.ParseResponse(buffer);
         assert.ok(response);
-        assert.ok(response.protocol === Protocol.WEBRTSP_0_1);
+        assert.ok(response.protocol === Protocol.WEBRTSP_0_2);
         assert.ok(response.statusCode === 200);
         assert.ok(response.reasonPhrase === "OK");
         assert.ok(response.cseq === 9);

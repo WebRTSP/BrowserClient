@@ -13,7 +13,7 @@ suite("RTSP Request serialize", () => {
 
     test("OPTIONS request", () => {
         const buffer =
-            "OPTIONS * WEBRTSP/0.1\r\n" +
+            "OPTIONS * WEBRTSP/0.2\r\n" +
             "CSeq: 1\r\n";
         let request = Parse.ParseRequest(buffer);
         let serialized = Serialize.SerializeRequest(request);
@@ -32,7 +32,7 @@ suite("RTSP Response serialize", () => {
 
     test("Minimal response", () => {
         const buffer =
-            "WEBRTSP/0.1 200 OK\r\n" +
+            "WEBRTSP/0.2 200 OK\r\n" +
             "CSeq: 9\r\n"
         let response = Parse.ParseResponse(buffer);
         let serialized = Serialize.SerializeResponse(response);

@@ -34,7 +34,7 @@ createRequest(method, uri, session)
 
     let request = new Request();
     request.method = method;
-    request.protocol = Protocol.WEBRTSP_0_1;
+    request.protocol = Protocol.WEBRTSP_0_2;
     request.cseq = this._nextCSeq;
     request.uri = uri;
 
@@ -64,13 +64,9 @@ requestList(uri)
 
 requestSetup(uri, contentType, session, body)
 {
-    let request = this.createRequest(Method.SETUP, uri);
-
-    if(session)
-        request.session = session;
+    let request = this.createRequest(Method.SETUP, uri, session);
 
     request.headerFields.set("Content-Type", contentType);
-
     request.body = body;
 
     this._sendRequest(request);
@@ -85,9 +81,12 @@ requestDescribe(uri)
     return request.cseq;
 }
 
-requestPlay(uri, session)
+requestPlay(uri, session, sdp)
 {
     let request = this.createRequest(Method.PLAY, uri, session);
+
+    request.headerFields.set("Content-Type", "application/sdp");
+    request.body = sdp;
 
     this._sendRequest(request);
 
@@ -106,7 +105,7 @@ requestTeardown(uri, session)
 createResponse(statusCode, reasonPhrase, cseq, session)
 {
     let response = new Response();
-    response.protocol = Protocol.WEBRTSP_0_1;
+    response.protocol = Protocol.WEBRTSP_0_2;
     response.statusCode = statusCode;
     response.reasonPhrase = reasonPhrase;
     response.cseq = cseq;

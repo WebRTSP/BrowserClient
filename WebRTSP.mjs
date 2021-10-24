@@ -142,7 +142,7 @@ onDescribeResponse(request, response)
             { type : "offer", sdp : offer });
     promise
         .then(() => {
-            this._sendAnswer();
+            this._sendPlay();
         }).
         catch((event) => {
             console.error("setRemoteDescription fail", event);
@@ -192,10 +192,6 @@ onSetupResponse(request, response)
     if(StatusCode.OK != response.statusCode)
         return false;
 
-    const contentType = request.headerFields.get("Content-Type");
-    if(contentType == "application/sdp")
-        this.requestPlay(this._encodedStreamerName, this._session)
-
     return true;
 }
 
@@ -212,7 +208,7 @@ close() {
 }
 
 
-async _sendAnswer()
+ async _sendPlay()
 {
     const answer =
         await this.peerConnection.createAnswer()
@@ -225,7 +221,7 @@ async _sendAnswer()
             console.error("setLocalDescription fail", event);
         });
 
-    await this.requestSetup(this._encodedStreamerName, "application/sdp", this._session, answer.sdp);
+    await this.requestPlay(this._encodedStreamerName, this._session, answer.sdp);
 }
 
 async _onIceCandidate(event)

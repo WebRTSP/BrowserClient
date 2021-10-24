@@ -1,8 +1,8 @@
-export const WEBRTSP_0_1 = 1;
+export const WEBRTSP_0_2 = 2;
 
 const names =
 {
-    [WEBRTSP_0_1] : "WEBRTSP/0.1",
+    [WEBRTSP_0_2] : "WEBRTSP/0.2",
 }
 
 export function Name(protocol)
