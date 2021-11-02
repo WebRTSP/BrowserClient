@@ -1,30 +1,24 @@
 export const OPTIONS = 1;
 export const LIST = 2;
 export const DESCRIBE = 3;
-// export const ANNOUNCE = 4;
-export const SETUP = 5;
-export const PLAY = 6;
-// export const PAUSE = 7;
-export const TEARDOWN = 8;
-// export const GET_PARAMETER = 9;
-// export const SET_PARAMETER = 10;
-// export const REDIRECT = 11;
-// export const RECORD = 12;
+export const SETUP = 4;
+export const PLAY = 5;
+export const RECORD = 6;
+export const TEARDOWN = 7;
+// export const GET_PARAMETER = 8;
+// export const SET_PARAMETER = 9;
 
 const names =
 {
     OPTIONS,
     LIST,
     DESCRIBE,
-    // ANNOUNCE,
     SETUP,
     PLAY,
-    // PAUSE,
+    RECORD,
     TEARDOWN,
     // GET_PARAMETER,
     // SET_PARAMETER,
-    // REDIRECT,
-    // RECORD,
 }
 
 export function Name(method)
