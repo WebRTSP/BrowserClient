@@ -49,22 +49,26 @@ handleMessage(message)
     if(Parse.IsRequest(message)) {
         const request = Parse.ParseRequest(message);
         if(!request) {
+            console.error(`Failed to parse message:\n${message}`)
             this.disconnect();
             return;
         }
 
         if(!this.handleRequest(request)) {
+            console.error(`Failed to handle message:\n${message}\nDisconnecting...`)
             this.disconnect();
             return;
         }
     } else {
         const response = Parse.ParseResponse(message);
         if(!response) {
+            console.error(`Failed to parse message:\n${message}`)
             this.disconnect();
             return;
         }
 
         if(!this.handleResponse(response)) {
+            console.error(`Failed to handle message:\n${message}\nDisconnecting...`)
             this.disconnect();
             return;
         }
