@@ -317,7 +317,7 @@ _scheduleReconnect()
     if(this._reconnectTimeoutId)
         return;
 
-    const reconnectTimout = 3;
+    const reconnectTimout = 1 + Math.floor(Math.random() * 5);
 
     console.info(`Scheduling reconnect in ${reconnectTimout} seconds...`);
 
