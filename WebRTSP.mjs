@@ -70,7 +70,6 @@ handleMessage(message)
         if(!this.handleResponse(response)) {
             console.error(`Failed to handle message:\n${message}\nDisconnecting...`)
             this.disconnect();
-            return;
         }
     }
 }
