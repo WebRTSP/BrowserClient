@@ -67,7 +67,11 @@ handleMessage(message)
             return;
         }
 
-        if(!this.handleResponse(response)) {
+        if(response.statusCode == StatusCode.Unauthorized) {
+            this._events.dispatchEvent(new CustomEvent("unauthorized"));
+            console.error("Got \"Unauthorized\" response. Disconnecting...")
+            this.disconnect();
+        } else if(!this.handleResponse(response)) {
             console.error(`Failed to handle message:\n${message}\nDisconnecting...`)
             this.disconnect();
         }
@@ -284,7 +288,14 @@ constructor(videoElement, iceServers, { debug })
     this._socket = null;
     this._session = null;
 
+    this._enableReconnect = true;
+
     this._reconnectTimeoutId = null;
+
+    this.events.addEventListener("unauthorized", (event) => {
+        this._enableReconnect = false;
+        setTimeout(() => { window.location.reload(); });
+    });
 }
 
 _onSocketOpen()
@@ -336,7 +347,7 @@ _onSocketClose(socket)
     if(socket == this._socket) {
         this._close();
 
-        if(this._url && this._streamerName)
+        if(this._enableReconnect && this._url && this._streamerName)
             this._scheduleReconnect();
     }
 
