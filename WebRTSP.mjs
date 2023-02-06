@@ -37,6 +37,8 @@ get streamerName() {
 }
 
 set streamerName(name) {
+    if(this._streamerName === name) return;
+
     this._streamerName = name;
     this._encodedStreamerName = name ? encodeURI(name) : null;
 }
