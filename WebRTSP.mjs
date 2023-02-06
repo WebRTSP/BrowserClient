@@ -233,7 +233,7 @@ async _sendPlay()
     await this.requestPlay(this._encodedStreamerName, this._session, answer.sdp);
 }
 
-async _onIceCandidate(event)
+_onIceCandidate(event)
 {
     let candidate;
     if(event.candidate && event.candidate.candidate)
@@ -242,7 +242,7 @@ async _onIceCandidate(event)
     else
         candidate = "0/a=end-of-candidates\r\n";
 
-    await this.requestSetup(
+    this.requestSetup(
         this._encodedStreamerName,
         "application/x-ice-candidate",
         this._session,
