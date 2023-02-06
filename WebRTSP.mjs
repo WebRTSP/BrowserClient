@@ -90,14 +90,12 @@ onOptionsResponse(request, response)
 
     if(!this._encodedStreamerName && this.options.has(Method.LIST)) {
         this.requestList("*");
+    } else {
+        if(!this._encodedStreamerName)
+            this.streamerName = "*";
 
-        return true;
+        this.requestDescribe(this._encodedStreamerName);
     }
-
-    if(!this._encodedStreamerName)
-        this.streamerName = "*";
-
-    this.requestDescribe(this._encodedStreamerName);
 
     return true;
 }
