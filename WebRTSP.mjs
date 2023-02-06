@@ -217,7 +217,7 @@ close() {
 }
 
 
- async _sendPlay()
+async _sendPlay()
 {
     const answer =
         await this.peerConnection.createAnswer()
