@@ -90,10 +90,10 @@ onOptionsResponse(request, response)
 
     this.options = options;
 
-    if(!this._encodedStreamerName && this.options.has(Method.LIST)) {
+    if(!this.streamerName && this.options.has(Method.LIST)) {
         this.requestList("*");
     } else {
-        if(!this._encodedStreamerName)
+        if(!this.streamerName)
             this.streamerName = "*";
 
         this.requestDescribe(this._encodedStreamerName);
@@ -121,7 +121,7 @@ onListResponse(request, response)
     if(!this._events.dispatchEvent(new CustomEvent("list", { detail: { list: this.list } })))
         return false;
 
-    if(!this._encodedStreamerName) {
+    if(!this.streamerName) {
         if(list.size > 0)
             this.streamerName = list.keys().next().value;
         else
