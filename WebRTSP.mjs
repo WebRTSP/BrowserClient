@@ -28,6 +28,8 @@ constructor(sendRequest, sendResponse, events, iceServers) {
         (event) => { this._onIceCandidate(event); };
     this.peerConnection.onicegatheringstatechange =
         (event) => { this._onIceGatheringStateChange(event); };
+    this.peerConnection.oniceconnectionstatechange =
+        (event) => { this._onIceConnectionStateChange(event); };
 }
 
 get streamerName() {
@@ -262,6 +264,11 @@ _addIceCandidate(candidate)
     promise.catch((event) => {
             console.error("addIceCandidate fail", event);
         });
+}
+
+_onIceConnectionStateChange()
+{
+    console.debug(`ICE connection state changed to: ${this.peerConnection.iceConnectionState}`);
 }
 
 }
