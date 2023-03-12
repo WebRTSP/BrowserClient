@@ -373,8 +373,11 @@ _onSocketError(socket, error)
     if(error.message)
         console.error(error.message);
 
-    if(socket == this._socket)
+    if(socket == this._socket) {
         this._close();
+
+        this._tryScheduleReconnect();
+    }
 }
 
 _onSocketMessage(event)
