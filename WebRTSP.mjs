@@ -330,8 +330,11 @@ _onTrack(event)
     this._video.srcObject = event.streams[0];
 }
 
-_scheduleReconnect()
+_tryScheduleReconnect()
 {
+    if(!this._enableReconnect || !this._url || !this._streamerName)
+        return;
+
     if(this._reconnectTimeoutId)
         return;
 
@@ -354,8 +357,7 @@ _onSocketClose(socket)
     if(socket == this._socket) {
         this._close();
 
-        if(this._enableReconnect && this._url && this._streamerName)
-            this._scheduleReconnect();
+        this._tryScheduleReconnect();
     }
 
     socket.onopen = undefined;
