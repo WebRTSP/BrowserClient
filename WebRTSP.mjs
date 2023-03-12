@@ -368,7 +368,8 @@ _onSocketClose(socket)
 
 _onSocketError(socket, error)
 {
-    console.error(error.message);
+    if(error.message)
+        console.error(error.message);
 
     if(socket == this._socket)
         this._close();
