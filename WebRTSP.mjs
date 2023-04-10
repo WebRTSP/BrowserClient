@@ -16,6 +16,7 @@ constructor(sendRequest, sendResponse, events, iceServers) {
 
     this._streamerName = null;
     this._encodedStreamerName = null;
+    this._options = null;
     this._session = null;
     this._iceCandidates = [];
 
@@ -88,9 +89,9 @@ onOptionsResponse(request, response)
     if(!options)
         return false;
 
-    this.options = options;
+    this._options = options;
 
-    if(!this.streamerName && this.options.has(Method.LIST)) {
+    if(!this.streamerName && options.has(Method.LIST)) {
         this.requestList("*");
     } else {
         if(!this.streamerName)
