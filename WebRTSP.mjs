@@ -42,6 +42,7 @@ set streamerName(name) {
 
     this._streamerName = name;
     this._encodedStreamerName = name ? encodeURI(name) : null;
+    this._options = null;
 }
 
 onConnected()
