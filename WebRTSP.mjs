@@ -159,6 +159,7 @@ onDescribeResponse(request, response)
             this._sendPlay();
         }).
         catch((event) => {
+            // FIXME! disconnect, or send TEARDOWN request
             console.error("setRemoteDescription fail", event);
         });
 
