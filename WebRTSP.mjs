@@ -90,6 +90,9 @@ onOptionsResponse(request, response)
     if(!options)
         return false;
 
+    console.assert((!this.streamerName && request.uri == "*") || this._encodedStreamerName == request.uri,
+        "Streamer name was changed during request to server");
+
     this._options = options;
 
     if(!this.streamerName && options.has(Method.LIST)) {
@@ -485,6 +488,8 @@ set streamerName(name) {
 
 reconnect()
 {
+    console.assert(!this._socket);
+
     if(!this._url || !this._streamerName)
         return;
 
