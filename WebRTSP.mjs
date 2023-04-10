@@ -18,6 +18,7 @@ constructor(sendRequest, sendResponse, events, iceServers) {
     this._encodedStreamerName = null;
     this._options = null;
     this._session = null;
+    this._subscribeSession = null;
     this._iceCandidates = [];
 
     Object.defineProperty(this, "peerConnection", {
@@ -101,7 +102,10 @@ onOptionsResponse(request, response)
         if(!this.streamerName)
             this.streamerName = "*";
 
-        this.requestDescribe(this._encodedStreamerName);
+        if(this._options.has(Method.SUBSCRIBE))
+            this.requestSubscribe(this._encodedStreamerName);
+        else
+            this.requestDescribe(this._encodedStreamerName);
     }
 
     return true;
@@ -133,9 +137,14 @@ onListResponse(request, response)
             this.streamerName = "*";
     }
 
-    console.info(`Requesting "${this._streamerName}" streamer...`);
 
-    this.requestDescribe(this._encodedStreamerName);
+    if(!this._options) {
+        this.requestOptions(this._encodedStreamerName);
+    } else {
+        console.info(`Requesting "${this._streamerName}" streamer...`);
+
+        this.requestDescribe(this._encodedStreamerName);
+    }
 
     return true;
 }
@@ -214,6 +223,48 @@ onPlayResponse(request, response)
 {
     if(StatusCode.OK != response.statusCode)
         return false;
+
+    return true;
+}
+
+onSubscribeResponse(request, response)
+{
+    if(StatusCode.OK != response.statusCode)
+        return false;
+
+    if(!response.session)
+        return false;
+
+    this._session = response.session;
+    this._subscribeSession = true;
+
+    return true;
+}
+
+handleRecordRequest(request)
+{
+    if(!request.session)
+        return false;
+
+    if(!this._session || !this._subscribeSession || request.session !== this._session)
+        return false;
+
+    const offer = request.body;
+    this.peerConnection.setRemoteDescription(
+        { type : "offer", sdp : offer })
+    .then(() => {
+        return this.peerConnection.createAnswer()
+    })
+    .then((answer) => {
+        return this.peerConnection.setLocalDescription(answer).then(() => answer)
+    })
+    .then((answer) => {
+        this.sendRecordOkResponse(request.cseq, request.session, answer.sdp);
+    })
+    .catch((event) => {
+        // FIXME! disconnect, or send response with error
+        console.error("handleRecordRequest failed", event);
+    });
 
     return true;
 }

@@ -93,6 +93,16 @@ requestPlay(uri, session, sdp)
     return request.cseq;
 }
 
+requestSubscribe(uri)
+{
+    let request = this.createRequest(Method.SUBSCRIBE, uri);
+
+    this._sendRequest(request);
+
+    return request.cseq;
+}
+
+
 requestTeardown(uri, session)
 {
     let request = this.createRequest(Method.TEARDOWN, uri, session);
@@ -122,12 +132,25 @@ sendOkResponse(cseq, session)
     this._sendResponse(response);
 }
 
+sendRecordOkResponse(cseq, session, sdp)
+{
+    const response = this.createResponse(StatusCode.OK, "OK", cseq, session);
+    response.headerFields.set("Content-Type", "application/sdp");
+    response.body = sdp;
+    this._sendResponse(response);
+}
+
 handleRequest(request)
 {
     switch(request.method) {
     case Method.SETUP:
         if(this.handleSetupRequest)
             return this.handleSetupRequest(request);
+        else
+            return false;
+    case Method.RECORD:
+        if(this.handleRecordRequest)
+            return this.handleRecordRequest(request);
         else
             return false;
     default:
@@ -167,6 +190,11 @@ handleResponse(response)
         case Method.PLAY:
             if(this.onPlayResponse)
                 return this.onPlayResponse(request, response);
+            else
+                return false;
+        case Method.SUBSCRIBE:
+            if(this.onSubscribeResponse)
+                return this.onSubscribeResponse(request, response);
             else
                 return false;
         case Method.TEARDOWN:
