@@ -153,6 +153,11 @@ handleRequest(request)
             return this.handleRecordRequest(request);
         else
             return false;
+    case Method.TEARDOWN:
+        if(this.handleTeardownRequest)
+            return this.handleTeardownRequest(request);
+        else
+            return false;
     default:
         return false;
     }
