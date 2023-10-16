@@ -269,6 +269,19 @@ handleRecordRequest(request)
     return true;
 }
 
+handleTeardownRequest(request)
+{
+    if(!request.session)
+        return false;
+
+    if(!this._session || request.session !== this._session)
+        return false;
+
+    this.close();
+
+    return true;
+}
+
 close() {
     this._session = null;
     this.peerConnection.close();
