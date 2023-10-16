@@ -270,6 +270,7 @@ handleRecordRequest(request)
 }
 
 close() {
+    this._session = null;
     this.peerConnection.close();
 }
 
