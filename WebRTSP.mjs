@@ -96,8 +96,12 @@ onOptionsResponse(request, response)
 
     this._options = options;
 
-    if(!this.streamerName && options.has(Method.LIST)) {
-        this.requestList("*");
+    if(options.has(Method.LIST)) {
+        if(this.streamerName) {
+            this.requestList(this._encodedStreamerName);
+        } else {
+            this.requestList("*");
+        }
     } else {
         if(!this.streamerName)
             this.streamerName = "*";
@@ -133,6 +137,7 @@ onListResponse(request, response)
             {
                 cancelable: true,
                 detail: {
+                    uri: decodeURI(request.uri),
                     list: this.list
                 }
             }
