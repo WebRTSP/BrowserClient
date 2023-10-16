@@ -127,8 +127,20 @@ onListResponse(request, response)
         this.list.set(decodeURI(key), value);
     })
 
-    if(!this._events.dispatchEvent(new CustomEvent("list", { detail: { list: this.list } })))
-        return false;
+    const listEvent =
+        new CustomEvent(
+            "list",
+            {
+                cancelable: true,
+                detail: {
+                    list: this.list
+                }
+            }
+        )
+
+    if(!this._events.dispatchEvent(listEvent)) {
+        return true;
+    }
 
     if(!this.streamerName) {
         if(list.size > 0)
