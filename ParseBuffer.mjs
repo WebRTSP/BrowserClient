@@ -1,7 +1,7 @@
 export default class ParseBuffer
 {
     constructor(buffer) {
-        this.buffer = buffer;
+        this.buffer = buffer || "";
         this._pos = 0;
     }
 
