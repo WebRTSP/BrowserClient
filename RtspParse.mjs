@@ -552,6 +552,11 @@ export function ParseParameters(body)
     let parameters = new Map;
 
     let parseBuffer = new ParseBuffer(body);
+
+    if(SkipEOL(parseBuffer)) {
+        return parseBuffer.eos ? parameters : null;
+    }
+
     while(!parseBuffer.eos) {
         const { name, value } = ParseParameter(parseBuffer, parameters) || {};
 
