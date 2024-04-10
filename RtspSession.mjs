@@ -4,6 +4,9 @@ import * as StatusCode from "./RtspStatusCode.mjs"
 import Request from "./RtspRequest.mjs"
 import Response from "./RtspResponse.mjs"
 
+
+const MIN_CSEQ = 1;
+
 export default class Session
 {
 
@@ -18,7 +21,7 @@ constructor(sendRequest, sendResponse) {
     }
     this._sendResponse = sendResponse;
 
-    this._nextCSeq = 1;
+    this._nextCSeq = MIN_CSEQ;
     
     this._sentRequests = new Map();
 }
