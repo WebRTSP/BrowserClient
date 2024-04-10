@@ -6,7 +6,7 @@ export const PLAY = 5;
 export const SUBSCRIBE = 6;
 export const RECORD = 7;
 export const TEARDOWN = 8;
-// export const GET_PARAMETER = 9;
+export const GET_PARAMETER = 9;
 // export const SET_PARAMETER = 10;
 
 const names =
@@ -19,7 +19,7 @@ const names =
     SUBSCRIBE,
     RECORD,
     TEARDOWN,
-    // GET_PARAMETER,
+    GET_PARAMETER,
     // SET_PARAMETER,
 }
 

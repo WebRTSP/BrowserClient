@@ -6,6 +6,7 @@ import Response from "./RtspResponse.mjs"
 
 
 const MIN_CSEQ = 1;
+const PING_INTERVAL = 60; //seconds
 
 export default class Session
 {
@@ -16,6 +17,7 @@ constructor(sendRequest, sendResponse) {
             console.error("Missing uri in webrtsp request");
             sendRequest(null);
         } else {
+            this._schedulePing();
             sendRequest(request);
         }
     }
@@ -28,7 +30,13 @@ constructor(sendRequest, sendResponse) {
 
 disconnect()
 {
+    this._removeScheduledPing();
     this._sendRequest(undefined);
+}
+
+close()
+{
+    this._removeScheduledPing();
 }
 
 _incNextCSeq()
@@ -36,6 +44,24 @@ _incNextCSeq()
     ++this._nextCSeq;
     if(this._nextCSeq == Number.MAX_SAFE_INTEGER)
         this._nextCSeq = MIN_CSEQ;
+}
+
+_removeScheduledPing()
+{
+    if(this._pingTimeout) {
+        clearTimeout(this._pingTimeout);
+        this._pingTimeout = null;
+    }
+}
+
+_schedulePing()
+{
+    this._removeScheduledPing();
+
+    this._pingTimeout = setTimeout(() => {
+        this._pingTimeout = null;
+        this.requestPing();
+    }, PING_INTERVAL * 1000)
 }
 
 createRequest(method, uri, session)
@@ -56,6 +82,14 @@ createRequest(method, uri, session)
     this._incNextCSeq();
 
     return request;
+}
+
+requestPing()
+{
+    let request = this.createRequest(Method.GET_PARAMETER, "*");
+    this._sendRequest(request);
+
+    return request.cseq;
 }
 
 requestOptions(uri)
@@ -219,6 +253,11 @@ handleResponse(response)
                 return this.onTeardownResponse(request, response);
             else
                 return false;
+        case Method.GET_PARAMETER:
+            if(this.onGetParameteRResponse)
+                return this.onGetParameteRResponse(request, response);
+            else
+                return true; // never fails, since it can be used as PING/PONG
         default:
             return false;
     }
