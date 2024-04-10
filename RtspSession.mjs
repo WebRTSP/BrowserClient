@@ -53,6 +53,8 @@ createRequest(method, uri, session)
 
     this._sentRequests.set(this._nextCSeq, request);
 
+    this._incNextCSeq();
+
     return request;
 }
 
