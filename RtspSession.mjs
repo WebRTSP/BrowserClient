@@ -43,7 +43,7 @@ createRequest(method, uri, session)
 
     if(session)
         request.session = session;
-    
+
     this._sentRequests.set(this._nextCSeq, request);
 
     return request;
