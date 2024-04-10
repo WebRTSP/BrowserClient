@@ -31,9 +31,16 @@ disconnect()
     this._sendRequest(undefined);
 }
 
+_incNextCSeq()
+{
+    ++this._nextCSeq;
+    if(this._nextCSeq == Number.MAX_SAFE_INTEGER)
+        this._nextCSeq = MIN_CSEQ;
+}
+
 createRequest(method, uri, session)
 {
-    for(;this._sentRequests.has(this._nextCSeq); ++this._nextCSeq);
+    for(;this._sentRequests.has(this._nextCSeq); this._incNextCSeq());
 
     let request = new Request();
     request.method = method;
