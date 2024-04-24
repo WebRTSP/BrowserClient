@@ -46,9 +46,14 @@ set streamerName(name) {
     this._options = null;
 }
 
+get encodedStreamerName() {
+    return this._encodedStreamerName || "*";
+}
+
+
 onConnected()
 {
-    this.requestOptions(this._encodedStreamerName || "*");
+    this.requestOptions(this.encodedStreamerName);
 }
 
 handleMessage(message)
@@ -91,25 +96,18 @@ onOptionsResponse(request, response)
     if(!options)
         return false;
 
-    console.assert((!this.streamerName && request.uri == "*") || this._encodedStreamerName == request.uri,
+    console.assert(this.encodedStreamerName === request.uri,
         "Streamer name was changed during request to server");
 
     this._options = options;
 
-    if(options.has(Method.LIST)) {
-        if(this.streamerName) {
-            this.requestList(this._encodedStreamerName);
-        } else {
-            this.requestList("*");
-        }
+    if(this._options.has(Method.LIST)) {
+        this.requestList(this.encodedStreamerName);
     } else {
-        if(!this.streamerName)
-            this.streamerName = "*";
-
         if(this._options.has(Method.SUBSCRIBE))
-            this.requestSubscribe(this._encodedStreamerName);
+            this.requestSubscribe(this.encodedStreamerName);
         else
-            this.requestDescribe(this._encodedStreamerName);
+            this.requestDescribe(this.encodedStreamerName);
     }
 
     return true;
@@ -156,11 +154,11 @@ onListResponse(request, response)
 
 
     if(!this._options) {
-        this.requestOptions(this._encodedStreamerName);
+        this.requestOptions(this.encodedStreamerName);
     } else {
         console.info(`Requesting "${this._streamerName}" streamer...`);
 
-        this.requestDescribe(this._encodedStreamerName);
+        this.requestDescribe(this.encodedStreamerName);
     }
 
     return true;
@@ -319,7 +317,7 @@ async _sendPlay()
             console.error("setLocalDescription fail", event);
         });
 
-    await this.requestPlay(this._encodedStreamerName, this._session, answer.sdp);
+    await this.requestPlay(this.encodedStreamerName, this._session, answer.sdp);
 }
 
 _onIceCandidate(event)
@@ -332,7 +330,7 @@ _onIceCandidate(event)
         candidate = "0/a=end-of-candidates\r\n";
 
     this.requestSetup(
-        this._encodedStreamerName,
+        this.encodedStreamerName,
         "application/x-ice-candidate",
         this._session,
         candidate);
