@@ -166,8 +166,16 @@ onListResponse(request, response)
 
 onDescribeResponse(request, response)
 {
-    if(StatusCode.OK != response.statusCode)
+    switch(response.statusCode) {
+    case StatusCode.OK:
+        break;
+    case StatusCode.BadGateway:
+        console.warn("Something went wrong on server side.\nDisconnecting...")
+        this.disconnect();
+        return true;
+    default:
         return false;
+    }
 
     if(!response.session)
         return false;
