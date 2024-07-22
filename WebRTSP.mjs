@@ -437,14 +437,20 @@ _tryScheduleReconnect()
             }, reconnectTimout * 1000);
 }
 
+_cancelPendingReconnect()
+{
+    if(this._reconnectTimeoutId) {
+        clearTimeout(this._reconnectTimeoutId);
+        this._reconnectTimeoutId = null;
+    }
+}
+
 _onSocketClose(socket)
 {
     console.info("Disconnected.");
 
     if(socket == this._socket) {
-        this._close();
-
-        this._tryScheduleReconnect();
+        this._closeAndReconnect();
     }
 
     socket.onopen = undefined;
@@ -461,9 +467,7 @@ _onSocketError(socket, error)
         console.error(error.message);
 
     if(socket == this._socket) {
-        this._close();
-
-        this._tryScheduleReconnect();
+        this._closeAndReconnect();
     }
 }
 
@@ -491,17 +495,23 @@ _close()
     }
 }
 
+_closeAndReconnect()
+{
+    this._close()
+    this._tryScheduleReconnect();
+}
+
 _sendRequest(request)
 {
     if(!request) {
-        this._close();
+        this._closeAndReconnect();
         return;
     }
 
     const requestMessage = Serialize.SerializeRequest(request);
 
     if(!requestMessage) {
-        this._close();
+        this._closeAndReconnect();
         return;
     }
 
@@ -514,14 +524,14 @@ _sendRequest(request)
 _sendResponse(response)
 {
     if(!response) {
-        this._close();
+        this._closeAndReconnect();
         return;
     }
 
     const responseMessage = Serialize.SerializeResponse(response);
 
     if(!responseMessage) {
-        this._close();
+        this._closeAndReconnect();
         return;
     }
 
