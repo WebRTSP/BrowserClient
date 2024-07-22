@@ -477,6 +477,8 @@ _onSocketMessage(event)
 
 _close()
 {
+    this._cancelPendingReconnect();
+
     if(this._session) {
         this._session.peerConnection.ontrack = undefined;
         this._session.close();
