@@ -9,5 +9,8 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "mocha": "*"
+  },
+  "dependencies": {
+    "loglevel": "^1.9.2"
   }
 }
